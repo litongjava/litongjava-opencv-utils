@@ -93,8 +93,8 @@ public class RecognitionShapeUtils {
     MatUtils.debugToFile(isSave, lastRectMax, maxAreaName, extensionName, maxAreaDstPath, isUpload, uploadHost);
 
     /**
-     * 判断是否进行二次裁剪,查找面积最大的图形,如果图形面积大于指定值,则表名还有一层边框,需要进行二次裁剪,如果没有则不需要进行,多次裁剪
-     * 经过多次试验,判断0.3是一个比较不错的值
+     * 判断是否进行二次裁剪,查找面积最大的图形,如果图形面积大于指定值,则还有一层边框,需要进行二次裁剪,如果没有则不需要进行多次裁剪
+     * 经过多次试验,判断0.3是合适的值
      */
 
     debugInfo.setImagePath(maxAreaDstPath);
@@ -278,7 +278,7 @@ public class RecognitionShapeUtils {
     Boolean isUpload = debugInfo.getIsUpload();
     String uploadHost = debugInfo.getUploadHost();
     // 分离颜色
-    Mat mask = colorDivision(color, mat, lower, upper);
+    Mat mask = ColorDivisionUtils.colorDivision(mat, lower, upper);
     // 保存分离后的图像
     String colorBaseName = MatUtils.getBaseName(baseName, colorSuffix);
     String dstPath = MatUtils.getDstPath(tempPath, colorBaseName, extensionName);
@@ -584,26 +584,7 @@ public class RecognitionShapeUtils {
     return shape;
   }
 
-  /**
-   * 顔色分割
-   * 
-   * @param color
-   * @param hsv
-   * @param lowerb
-   * @param upperb
-   * @return
-   */
-  public static Mat colorDivision(String color, Mat hsv, Scalar lowerb, Scalar upperb) {
-    Mat mask = new Mat();
-    Core.inRange(hsv, lowerb, upperb, mask);
-    if (lowerb.equals(HsvConstants.lower_red)) {
-      log.info("检测红色,再次进行检测");
-      Mat mask2 = new Mat();
-      Core.inRange(hsv, HsvConstants.lower_red_2, HsvConstants.upper_red_2, mask2);
-      Core.add(mask, mask2, mask);
-    }
-    return mask;
-  }
+
 
   public static String[] formatToArray(List<Shape> shapList) {
     // 进行格式化处理,方便android端显示

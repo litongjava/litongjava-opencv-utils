@@ -140,7 +140,7 @@ public class ShapeUtils {
     Mat temphsv = new Mat();
     Imgproc.cvtColor(src, temphsv, Imgproc.COLOR_BGR2HSV);
     // 提取hsv中的白色
-    Mat colorDivision = RecognitionShapeUtils.colorDivision("白色", temphsv, HsvConstants.lower_white,
+    Mat colorDivision = ColorDivisionUtils.colorDivision(temphsv, HsvConstants.lower_white,
         HsvConstants.upper_white);
 
     Mat thresholded = new Mat(colorDivision.rows(), colorDivision.cols(), CvType.CV_8UC1);

@@ -15,14 +15,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DebugInfo {
+  //是否保存中间文件
+  private Boolean isSave = false;
+  //是否上传文件
+  private Boolean isUpload=false;
+  //是否输出文件日志
+  private Boolean isLog=false;
+  
   private String imagePath="";
   private String filename="";
   private String baseName="";
   private String extensionName="";
   private String tempPath="";
-  private Boolean isSave = false;
-  private Boolean isUpload=false;
   private String uploadHost="";
+  
 
   public DebugInfo(String imagePath, boolean isSave) {
     this.setImagePath(imagePath);
@@ -33,6 +39,7 @@ public class DebugInfo {
     this.setImagePath(imagePath);
     this.tempPath = tempPath;
     this.isSave = debug;
+    this.isLog=debug;
   }
 
   public void setImagePath(String imagePath) {

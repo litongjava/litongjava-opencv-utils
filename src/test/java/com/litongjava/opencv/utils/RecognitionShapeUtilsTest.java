@@ -57,6 +57,7 @@ public class RecognitionShapeUtilsTest {
     Map<String, String[]> result = new HashMap<>();
     for (String imagePath : imagePathList) {
       DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
+      //读取文件
       byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
       List<Shape> shapList = RecognitionShapeUtils.index(imageBytes, debugInfo);
       String[] formatToArray = RecognitionShapeUtils.formatToArray(shapList);
@@ -90,7 +91,9 @@ public class RecognitionShapeUtilsTest {
 //  String imagePath = "D:\\opencv-images\\shape\\shape-night.jpg";
     // String imagePath = "D:\\opencv-images\\shape\\Shape-1639277030908.jpg";
     // String imagePath="D:\\opencv-images\\shape\\Shape.png";
-    String imagePath = "D:\\opencv-images\\shape\\shape-009.jpg";
+    //String imagePath = "D:\\opencv-images\\shape\\shape-009.jpg";
+    //String imagePath = "D:\\opencv-images\\shape\\shape-009.jpg";
+    String imagePath="D:\\opencv-images\\2021省赛比赛内容\\20211216150750.jpg";
     DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
 
     byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
@@ -391,7 +394,7 @@ public class RecognitionShapeUtilsTest {
       Mat temphsv = new Mat();
       Imgproc.cvtColor(src, temphsv, Imgproc.COLOR_BGR2HSV);
       // 提取hsv中的白色
-      Mat colorDivision = RecognitionShapeUtils.colorDivision("白色", temphsv, HsvConstants.lower_white,
+      Mat colorDivision = ColorDivisionUtils.colorDivision(temphsv, HsvConstants.lower_white,
           HsvConstants.upper_white);
 
       Mat thresholded = new Mat(colorDivision.rows(), colorDivision.cols(), CvType.CV_8UC1);

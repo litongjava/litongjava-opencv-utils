@@ -9,9 +9,11 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.HighGui;
 import org.opencv.imgproc.Imgproc;
 
 import com.litongjava.opencv.model.DebugInfo;
@@ -45,10 +47,11 @@ public class ImgprocUtils {
     // 灰度化
     Mat gray = new Mat();
     Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
-
+    // 保存灰度化结果
     String grayName = baseName + "-gray";
     String grayDstPath = tempPath + File.separator + grayName + "." + extesnionName;
     MatUtils.debugToFile(isSave, gray, grayName, extesnionName, grayDstPath, isUpload, uploadHost);
+
     // 均值滤波
     Size ksize = new Size(5, 5);
     Mat blur = new Mat();
@@ -77,12 +80,83 @@ public class ImgprocUtils {
   }
 
   /**
+   * 查找轮廓
+   * @param src
+   * @param debugInfo
+   * @throws IOException 
+   */
+  public static List<MatOfPoint> findContoursNotBlur(Mat src, DebugInfo debugInfo) throws IOException {
+    String baseName = debugInfo.getBaseName();
+    String tempPath = debugInfo.getTempPath();
+    Boolean isSave = debugInfo.getIsSave();
+    Boolean isUpload = debugInfo.getIsUpload();
+    String uploadHost = debugInfo.getUploadHost();
+
+    String extesnionName = debugInfo.getExtensionName();
+
+    // 灰度化
+    Mat gray = new Mat();
+    Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+
+    // 保存灰度化结果
+    String grayName = baseName + "-gray";
+    String grayDstPath = tempPath + File.separator + grayName + "." + extesnionName;
+    MatUtils.debugToFile(isSave, gray, grayName, extesnionName, grayDstPath, isUpload, uploadHost);
+
+    // 二值化
+    // threshold(src, binary, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    // imshow("binary image", binary);
+//    Mat binary = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
+//    int type = Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU;
+//    Imgproc.threshold(gray, binary, 0, 255, type);
+
+    // 保存二值化结果
+//    String threshedName = grayName + "-threshed_" + 0 + "_" + 255 + "_" + type;
+//    String threshedDstPath = tempPath + File.separator + threshedName + "." + extesnionName;
+//    MatUtils.debugToFile(isSave, binary, threshedName, extesnionName, threshedDstPath, isUpload, uploadHost);
+
+    // 形态学变化
+    // Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1,
+    // -1));
+    // morphologyEx(binary, dst, MORPH_CLOSE, kernel, Point(-1, -1));
+    // imshow("close image", dst);
+    // Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new
+    // Size(3, 3), new Point(-1, -1));
+    // Mat dst = new Mat();
+    // Imgproc.morphologyEx(binary, dst, Imgproc.MORPH_CLOSE, kernel, new
+    // Point(-1, -1));
+
+    // 查找轮廓
+    // vector<vector<Point>> contours;
+    // vector<Vec4i> hireachy;
+    // findContours(dst, contours, hireachy, RETR_TREE, CHAIN_APPROX_SIMPLE,
+    // Point());
+    Mat hierarchy = new Mat();
+    List<MatOfPoint> contours = new ArrayList<>();
+    Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point());
+    return contours;
+  }
+
+  /**
    * 查找图片中的轮廓并绘制出来
    * 
    * @return
    * @throws IOException
    */
   public static Mat findContoursAndDraw(Mat src, DebugInfo debugInfo) throws IOException {
+    List<MatOfPoint> contours = findContours(src, debugInfo);
+    return drawContours(src, contours, debugInfo);
+  }
+
+  /**
+   * 画出轮廓并保存
+   * @param src
+   * @param contours
+   * @param debugInfo
+   * @return
+   * @throws IOException
+   */
+  public static Mat drawContours(Mat src, List<MatOfPoint> contours, DebugInfo debugInfo) throws IOException {
     Boolean isSave = debugInfo.getIsSave();
     String tempPath = debugInfo.getTempPath();
     String baseName = debugInfo.getBaseName();
@@ -91,7 +165,6 @@ public class ImgprocUtils {
     Boolean isUpload = debugInfo.getIsUpload();
     String uploadHost = debugInfo.getUploadHost();
 
-    List<MatOfPoint> contours = findContours(src, debugInfo);
     // 画出轮廓
     Imgproc.drawContours(src, contours, -1, new Scalar(0, 0, 255));
     String drawContoursName = baseName + "-contours";
@@ -172,7 +245,7 @@ public class ImgprocUtils {
     // 二值化
     Mat threshed = new Mat(blur.rows(), blur.cols(), CvType.CV_8UC1);
     int type = Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU;
-    //int type = Imgproc.THRESH_BINARY + Imgproc.THRESH_TRIANGLE;
+    // int type = Imgproc.THRESH_BINARY + Imgproc.THRESH_TRIANGLE;
     Imgproc.threshold(blur, threshed, 0, 255, type);
 
     String thresholdName = MatUtils.getBaseName(grayName, "threshold");
@@ -193,8 +266,7 @@ public class ImgprocUtils {
     String drawContoursName = thresholdName + "-contours";
     String drawContoursDstPath = tempPath + File.separator + drawContoursName + "." + extensionName;
     log.info("save file name:{}", drawContoursName);
-    MatUtils.debugToFile(isSave, contoursMat, drawContoursName, extensionName, drawContoursDstPath, isUpload,
-        uploadHost);
+    MatUtils.debugToFile(isSave, contoursMat, drawContoursName, extensionName, drawContoursDstPath, isUpload, uploadHost);
 
     // 找最大面积轮廓
     double areaMax = 0;
@@ -312,10 +384,37 @@ public class ImgprocUtils {
     Mat usm = new Mat();
     Core.addWeighted(src, 1.5, blur, -0.5, 0, usm);
 
-//    Mat roi = new Mat(new Size(src.cols(), src.rows()), CvType.CV_8UC3, new Scalar(255, 255, 255));
-//    Mat dst = new Mat();
-//    Core.addWeighted(usm, 1.275, roi, 0.00015, 0, dst);
+    // Mat roi = new Mat(new Size(src.cols(), src.rows()), CvType.CV_8UC3, new
+    // Scalar(255, 255, 255));
+    // Mat dst = new Mat();
+    // Core.addWeighted(usm, 1.275, roi, 0.00015, 0, dst);
     return usm;
+  }
+
+  /**
+   * 裁剪出最大面积的图像,不用进行过滤
+   * @param src
+   * @param debugInfo
+   * @return
+   * @throws IOException 
+   */
+  public static MaxAreaBo getMaxAreaNoFilter(Mat src, DebugInfo debugInfo) throws IOException {
+    List<MatOfPoint> contours = findContours(src,debugInfo);
+
+    // 找最大面积轮廓
+    double areaMax = 0;
+    Rect rectMax = null;
+
+    for (MatOfPoint cnt : contours) {
+      Rect rect = Imgproc.boundingRect(cnt);
+      double contourArea = Imgproc.contourArea(cnt);
+      
+      if (contourArea > areaMax) {
+        areaMax = contourArea;
+        rectMax = rect;
+      }
+    }
+    return new MaxAreaBo(areaMax, rectMax);
   }
 
 }

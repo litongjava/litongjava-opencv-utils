@@ -13,7 +13,6 @@
 	</properties>
 	<dependencies>
 
-		<!--桥接器:告诉slf4j使用Log4j2 -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>

@@ -28,7 +28,9 @@ public class HsvConstants {
   public static Scalar upper_yellow = new Scalar(40, 255, 255);
 
   // 设定绿色阈值
-  public static Scalar lower_green = new Scalar(41, 120, 100);
+//  public static Scalar lower_green = new Scalar(41, 120, 100);
+//  public static Scalar upper_green = new Scalar(77, 255, 255);
+  public static Scalar lower_green = new Scalar(35, 43, 46);
   public static Scalar upper_green = new Scalar(77, 255, 255);
   
   // 设定青色阈值
