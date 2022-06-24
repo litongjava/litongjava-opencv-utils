@@ -42,15 +42,15 @@ public class ImgprocUtils {
     Boolean isUpload = debugInfo.getIsUpload();
     String uploadHost = debugInfo.getUploadHost();
 
-    String extesnionName = debugInfo.getExtensionName();
+    String extensionName = debugInfo.getExtensionName();
 
     // 灰度化
     Mat gray = new Mat();
     Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
     // 保存灰度化结果
     String grayName = baseName + "-gray";
-    String grayDstPath = tempPath + File.separator + grayName + "." + extesnionName;
-    MatUtils.debugToFile(isSave, gray, grayName, extesnionName, grayDstPath, isUpload, uploadHost);
+    String grayDstPath = tempPath + File.separator + grayName + "." + extensionName;
+    MatUtils.debugToFile(isSave, gray, grayName, extensionName, grayDstPath, isUpload, uploadHost);
 
     // 均值滤波
     Size ksize = new Size(5, 5);
@@ -58,8 +58,8 @@ public class ImgprocUtils {
     Imgproc.blur(gray, blur, ksize);
 
     String blurName = baseName + "-blur";
-    String blurDstPath = tempPath + File.separator + blurName + "." + extesnionName;
-    MatUtils.debugToFile(isSave, blur, blurName, extesnionName, blurDstPath, isUpload, uploadHost);
+    String blurDstPath = tempPath + File.separator + blurName + "." + extensionName;
+    MatUtils.debugToFile(isSave, blur, blurName, extensionName, blurDstPath, isUpload, uploadHost);
 
     // 二值化
     Mat threshed = new Mat(blur.rows(), blur.cols(), CvType.CV_8UC1);
@@ -67,8 +67,8 @@ public class ImgprocUtils {
     Imgproc.threshold(blur, threshed, 0, 255, type);
 
     String threshedName = blurName + "-threshed_" + 0 + "_" + 255 + "_" + type;
-    String threshedDstPath = tempPath + File.separator + threshedName + "." + extesnionName;
-    MatUtils.debugToFile(isSave, threshed, threshedName, extesnionName, threshedDstPath, isUpload, uploadHost);
+    String threshedDstPath = tempPath + File.separator + threshedName + "." + extensionName;
+    MatUtils.debugToFile(isSave, threshed, threshedName, extensionName, threshedDstPath, isUpload, uploadHost);
 
     // 查找轮廓
     Mat hierarchy = new Mat();
@@ -92,7 +92,7 @@ public class ImgprocUtils {
     Boolean isUpload = debugInfo.getIsUpload();
     String uploadHost = debugInfo.getUploadHost();
 
-    String extesnionName = debugInfo.getExtensionName();
+    String extensionName = debugInfo.getExtensionName();
 
     // 灰度化
     Mat gray = new Mat();
@@ -100,8 +100,8 @@ public class ImgprocUtils {
 
     // 保存灰度化结果
     String grayName = baseName + "-gray";
-    String grayDstPath = tempPath + File.separator + grayName + "." + extesnionName;
-    MatUtils.debugToFile(isSave, gray, grayName, extesnionName, grayDstPath, isUpload, uploadHost);
+    String grayDstPath = tempPath + File.separator + grayName + "." + extensionName;
+    MatUtils.debugToFile(isSave, gray, grayName, extensionName, grayDstPath, isUpload, uploadHost);
 
     // 二值化
     // threshold(src, binary, 0, 255, THRESH_BINARY | THRESH_OTSU);
@@ -112,8 +112,8 @@ public class ImgprocUtils {
 
     // 保存二值化结果
 //    String threshedName = grayName + "-threshed_" + 0 + "_" + 255 + "_" + type;
-//    String threshedDstPath = tempPath + File.separator + threshedName + "." + extesnionName;
-//    MatUtils.debugToFile(isSave, binary, threshedName, extesnionName, threshedDstPath, isUpload, uploadHost);
+//    String threshedDstPath = tempPath + File.separator + threshedName + "." + extensionName;
+//    MatUtils.debugToFile(isSave, binary, threshedName, extensionName, threshedDstPath, isUpload, uploadHost);
 
     // 形态学变化
     // Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1,

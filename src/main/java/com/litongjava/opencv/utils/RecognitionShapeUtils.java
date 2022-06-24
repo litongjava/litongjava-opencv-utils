@@ -66,98 +66,38 @@ public class RecognitionShapeUtils {
    * @throws IOException
    * @throws FileNotFoundException
    */
-  public static List<Shape> recgnizeV1(byte[] imageBytes, DebugInfo debugInfo)
-      throws FileNotFoundException, IOException {
-    String tempPath = debugInfo.getTempPath();
-    String extensionName = debugInfo.getExtensionName();
-    String baseName = debugInfo.getBaseName();
-    Boolean isSave = debugInfo.getIsSave();
-
-    Boolean isUpload = debugInfo.getIsUpload();
-    String uploadHost = debugInfo.getUploadHost();
+  public static List<Shape> recgnizeV1(byte[] imageBytes, DebugInfo debugInfo) throws FileNotFoundException, IOException {
 
     // 读取文件
     Mat src = MatUtils.imread(imageBytes);
 
-    // 经过两次裁剪,裁剪出包含图片的边框
-    // 裁剪取出最大面积的图像
-    MaxAreaBo maxAreaBo = ImgprocUtils.getMaxArea(src, debugInfo);
-    log.info("areaMax:{},rectMax:{}", maxAreaBo.getAreaMax(), maxAreaBo.getRectMax());
-    double lastAreaMax = maxAreaBo.getAreaMax();
-    // 裁剪图像
-    Mat lastRectMax = src.submat(maxAreaBo.getRectMax());
-    // 保存图片
-    String maxAreaName = MatUtils.getBaseName(baseName, "maxArea");
-    String maxAreaDstPath = MatUtils.getDstPath(tempPath, maxAreaName, extensionName);
-    log.info("save file name:{}", maxAreaName);
-    MatUtils.debugToFile(isSave, lastRectMax, maxAreaName, extensionName, maxAreaDstPath, isUpload, uploadHost);
+    // 获取识别区域
 
-    /**
-     * 判断是否进行二次裁剪,查找面积最大的图形,如果图形面积大于指定值,则还有一层边框,需要进行二次裁剪,如果没有则不需要进行多次裁剪
-     * 经过多次试验,判断0.3是合适的值
-     */
-
-    debugInfo.setImagePath(maxAreaDstPath);
-    // 再次提取最大面积的轮廓
-    maxAreaBo = ImgprocUtils.getMaxArea(lastRectMax, debugInfo);
-    log.info("areaMax:{},rectMax:{}", maxAreaBo.getAreaMax(), maxAreaBo.getRectMax());
-    double ratio = maxAreaBo.getAreaMax() / lastAreaMax;
-    log.info("ratio:{}", ratio);
-    if (ratio > 0.30) {
-      lastRectMax = lastRectMax.submat(maxAreaBo.getRectMax());
-      maxAreaName = MatUtils.getBaseName(maxAreaName, "maxArea");
-      maxAreaDstPath = MatUtils.getDstPath(tempPath, maxAreaName, extensionName);
-      log.info("save file name:{}", maxAreaName);
-      MatUtils.debugToFile(isSave, lastRectMax, maxAreaName, extensionName, maxAreaDstPath, isUpload, uploadHost);
-      debugInfo.setImagePath(maxAreaDstPath);
-
-      // 因为递归效率太低,判断是否需要再次进行裁剪
-      maxAreaBo = ImgprocUtils.getMaxArea(lastRectMax, debugInfo);
-      log.info("areaMax:{},rectMax:{}", maxAreaBo.getAreaMax(), maxAreaBo.getRectMax());
-      ratio = maxAreaBo.getAreaMax() / lastAreaMax;
-      log.info("ratio:{}", ratio);
-      if (ratio > 0.30) {
-        lastRectMax = lastRectMax.submat(maxAreaBo.getRectMax());
-        maxAreaName = MatUtils.getBaseName(maxAreaName, "maxArea");
-        maxAreaDstPath = MatUtils.getDstPath(tempPath, maxAreaName, extensionName);
-        log.info("save file name:{}", maxAreaName);
-        MatUtils.debugToFile(isSave, lastRectMax, maxAreaName, extensionName, maxAreaDstPath, isUpload, uploadHost);
-        debugInfo.setImagePath(maxAreaDstPath);
-
-        maxAreaBo = ImgprocUtils.getMaxArea(lastRectMax, debugInfo);
-        log.info("areaMax:{},rectMax:{}", maxAreaBo.getAreaMax(), maxAreaBo.getRectMax());
-        ratio = maxAreaBo.getAreaMax() / lastAreaMax;
-        log.info("ratio:{}", ratio);
-        if (ratio > 0.30) {
-          lastRectMax = lastRectMax.submat(maxAreaBo.getRectMax());
-          maxAreaName = MatUtils.getBaseName(maxAreaName, "maxArea");
-          maxAreaDstPath = MatUtils.getDstPath(tempPath, maxAreaName, extensionName);
-          log.info("save file name:{}", maxAreaName);
-          MatUtils.debugToFile(isSave, lastRectMax, maxAreaName, extensionName, maxAreaDstPath, isUpload, uploadHost);
-          debugInfo.setImagePath(maxAreaDstPath);
-        }
-      }
-    }
+    Mat lastRectMax = RecognitionUtils.extraRecogArea(src, debugInfo);
 
     // 将背景色设置为白色
-//    Mat whiteBackMat = KmeansUtils.backgrand2Wite(extraMaxArea);
-//    String whiteBackMatName = MatUtils.getBaseName(maxAreaName, "whiteBack");
-//    String whiteBackMateDstPath = MatUtils.getDstPath(tempPath, whiteBackMatName, extensionName);
-//    log.info("save file name:{}", whiteBackMatName);
-//    MatUtils.debugToFile(isSave, whiteBackMat, whiteBackMatName, extensionName, whiteBackMateDstPath, isUpload,
-//        uploadHost);
-//    debugInfo.setImagePath(whiteBackMateDstPath);
+    // Mat whiteBackMat = KmeansUtils.backgrand2Wite(extraMaxArea);
+    // String whiteBackMatName = MatUtils.getBaseName(maxAreaName, "whiteBack");
+    // String whiteBackMateDstPath = MatUtils.getDstPath(tempPath,
+    // whiteBackMatName, extensionName);
+    // log.info("save file name:{}", whiteBackMatName);
+    // MatUtils.debugToFile(isSave, whiteBackMat, whiteBackMatName,
+    // extensionName, whiteBackMateDstPath, isUpload,
+    // uploadHost);
+    // debugInfo.setImagePath(whiteBackMateDstPath);
     // 设置背景色为白色,对白色图片处理效果不好,改用其他方案
 
-//    Mat usmMat = ImgprocUtils.usm(lastRectMax);
-//    String usmMatName = MatUtils.getBaseName(maxAreaName, "usm");
-//    String usmMateDstPath = MatUtils.getDstPath(tempPath, usmMatName, extensionName);
-//    log.info("save file name:{}", usmMateDstPath);
-//    MatUtils.debugToFile(isSave, usmMat, usmMatName, extensionName, usmMateDstPath, isUpload, uploadHost);
-//    debugInfo.setImagePath(usmMateDstPath);
+    // Mat usmMat = ImgprocUtils.usm(lastRectMax);
+    // String usmMatName = MatUtils.getBaseName(maxAreaName, "usm");
+    // String usmMateDstPath = MatUtils.getDstPath(tempPath, usmMatName,
+    // extensionName);
+    // log.info("save file name:{}", usmMateDstPath);
+    // MatUtils.debugToFile(isSave, usmMat, usmMatName, extensionName,
+    // usmMateDstPath, isUpload, uploadHost);
+    // debugInfo.setImagePath(usmMateDstPath);
 
     return recognizeShape(lastRectMax, debugInfo);
-//    return null;
+    // return null;
   }
 
   /**
@@ -186,35 +126,38 @@ public class RecognitionShapeUtils {
       String whiteDstPath = MatUtils.getDstPath(tempPath, whiteName, extensionName);
       log.info("save file name:{}", whiteDstPath);
       MatUtils.debugToFile(isSave, backgrand2Wite, whiteName, extensionName, whiteDstPath, isUpload, uploadHost);
-      src=backgrand2Wite.clone();
+      src = backgrand2Wite.clone();
     }
-    
+
     // 进行图像增强
     Mat usm = ImgprocUtils.usm(src);
     String usmName = MatUtils.getBaseName(baseName, "usm");
     String usmDstPath = MatUtils.getDstPath(tempPath, usmName, extensionName);
     log.info("save file name:{}", usmName);
     MatUtils.debugToFile(isSave, usm, usmName, extensionName, usmDstPath, isUpload, uploadHost);
-    
-    src = usm.clone();
-    
 
-//    Mat bilatera = new Mat();
+    src = usm.clone();
+
+    // Mat bilatera = new Mat();
     // 高斯双边滤波
-//    Imgproc.bilateralFilter(src, bilatera, 0, 100, 10);
-//    String bilateraName = MatUtils.getBaseName(baseName, "bilatera");
-//    String bilateraDstPath = MatUtils.getDstPath(tempPath, bilateraName, extensionName);
-//    log.info("save file name:{}", bilateraName);
-//    MatUtils.debugToFile(isSave, bilatera, bilateraName, extensionName, bilateraDstPath, isUpload, uploadHost);
+    // Imgproc.bilateralFilter(src, bilatera, 0, 100, 10);
+    // String bilateraName = MatUtils.getBaseName(baseName, "bilatera");
+    // String bilateraDstPath = MatUtils.getDstPath(tempPath, bilateraName,
+    // extensionName);
+    // log.info("save file name:{}", bilateraName);
+    // MatUtils.debugToFile(isSave, bilatera, bilateraName, extensionName,
+    // bilateraDstPath, isUpload, uploadHost);
 
     // 高斯滤波
-//    Mat gaussianBlur = new Mat();
-//    Imgproc.GaussianBlur(usm, gaussianBlur, new Size(3, 3), 3);
-//    String gaussianBlurName = MatUtils.getBaseName(baseName, "gaussianBlur");
-//    String gaussianBlureDstPath = MatUtils.getDstPath(tempPath, gaussianBlurName, extensionName);
-//    log.info("save file name:{}", gaussianBlurName);
-//    MatUtils.debugToFile(isSave, gaussianBlur, gaussianBlurName, extensionName, gaussianBlureDstPath, isUpload,
-//        uploadHost);
+    // Mat gaussianBlur = new Mat();
+    // Imgproc.GaussianBlur(usm, gaussianBlur, new Size(3, 3), 3);
+    // String gaussianBlurName = MatUtils.getBaseName(baseName, "gaussianBlur");
+    // String gaussianBlureDstPath = MatUtils.getDstPath(tempPath,
+    // gaussianBlurName, extensionName);
+    // log.info("save file name:{}", gaussianBlurName);
+    // MatUtils.debugToFile(isSave, gaussianBlur, gaussianBlurName,
+    // extensionName, gaussianBlureDstPath, isUpload,
+    // uploadHost);
 
     // 转成hsv
     Mat hsv = new Mat();
@@ -226,31 +169,22 @@ public class RecognitionShapeUtils {
 
     // 每次分割一种颜色,并且查找轮廓
     debugInfo.setImagePath(hsvDstPath);
-    List<Shape> blackShape = colorDivisionAndFindShape(hsv, "黑色", "black", HsvConstants.lower_black,
-        HsvConstants.upper_black, debugInfo);
+    List<Shape> blackShape = colorDivisionAndFindShape(hsv, "黑色", "black", HsvConstants.lower_black, HsvConstants.upper_black, debugInfo);
 
-    List<Shape> redShape = colorDivisionAndFindShape(hsv, "红色", "red", HsvConstants.lower_red, HsvConstants.upper_red,
-        debugInfo);
+    List<Shape> redShape = colorDivisionAndFindShape(hsv, "红色", "red", HsvConstants.lower_red, HsvConstants.upper_red, debugInfo);
 
-    List<Shape> orangeShape = colorDivisionAndFindShape(hsv, "橙色", "orange", HsvConstants.lower_orange,
-        HsvConstants.upper_orange, debugInfo);
+    List<Shape> orangeShape = colorDivisionAndFindShape(hsv, "橙色", "orange", HsvConstants.lower_orange, HsvConstants.upper_orange, debugInfo);
 
-    List<Shape> yellowShape = colorDivisionAndFindShape(hsv, "黄色", "yellow", HsvConstants.lower_yellow,
-        HsvConstants.upper_yellow, debugInfo);
+    List<Shape> yellowShape = colorDivisionAndFindShape(hsv, "黄色", "yellow", HsvConstants.lower_yellow, HsvConstants.upper_yellow, debugInfo);
 
-    List<Shape> greenShape = colorDivisionAndFindShape(hsv, "绿色", "green", HsvConstants.lower_green,
-        HsvConstants.upper_green, debugInfo);
-    List<Shape> cyanShape = colorDivisionAndFindShape(hsv, "青色", "cyan", HsvConstants.lower_cyan,
-        HsvConstants.upper_cyan, debugInfo);
+    List<Shape> greenShape = colorDivisionAndFindShape(hsv, "绿色", "green", HsvConstants.lower_green, HsvConstants.upper_green, debugInfo);
+    List<Shape> cyanShape = colorDivisionAndFindShape(hsv, "青色", "cyan", HsvConstants.lower_cyan, HsvConstants.upper_cyan, debugInfo);
 
-    List<Shape> blueShape = colorDivisionAndFindShape(hsv, "蓝色", "blue", HsvConstants.lower_blue,
-        HsvConstants.upper_blue, debugInfo);
+    List<Shape> blueShape = colorDivisionAndFindShape(hsv, "蓝色", "blue", HsvConstants.lower_blue, HsvConstants.upper_blue, debugInfo);
 
-    List<Shape> purpleShape = colorDivisionAndFindShape(hsv, "紫色", "purple", HsvConstants.lower_purple,
-        HsvConstants.upper_purple, debugInfo);
+    List<Shape> purpleShape = colorDivisionAndFindShape(hsv, "紫色", "purple", HsvConstants.lower_purple, HsvConstants.upper_purple, debugInfo);
 
-    List<Shape> retval = ListUitls.toList(blackShape, redShape, orangeShape, yellowShape, greenShape, cyanShape,
-        blueShape, purpleShape);
+    List<Shape> retval = ListUitls.toList(blackShape, redShape, orangeShape, yellowShape, greenShape, cyanShape, blueShape, purpleShape);
     // 合并list并返回
     return retval;
 
@@ -267,8 +201,8 @@ public class RecognitionShapeUtils {
    * @throws IOException
    */
 
-  public static List<Shape> colorDivisionAndFindShape(Mat mat, String color, String colorSuffix, Scalar lower,
-      Scalar upper, DebugInfo debugInfo) throws IOException {
+  public static List<Shape> colorDivisionAndFindShape(Mat mat, String color, String colorSuffix, Scalar lower, Scalar upper, DebugInfo debugInfo)
+      throws IOException {
 
     Boolean isSave = debugInfo.getIsSave();
     String baseName = debugInfo.getBaseName();
@@ -312,7 +246,7 @@ public class RecognitionShapeUtils {
     List<Shape> retval = new ArrayList<>();
     Mat thresholded = new Mat(mask.rows(), mask.cols(), CvType.CV_8UC1);
     int type = Imgproc.THRESH_BINARY | Imgproc.THRESH_TRIANGLE;
-//    log.info("type:{}", type);
+    // log.info("type:{}", type);
     Imgproc.threshold(mask, thresholded, 0, 255, type);
 
     String thresholdName = MatUtils.getBaseName(baseName, "threshold_0_255_" + type);
@@ -349,7 +283,7 @@ public class RecognitionShapeUtils {
       double contourArea = Imgproc.contourArea(contour);
       log.info("contourArea:{}", contourArea);
       // 过滤面积比较小和比较大的轮廓
-      if (contourArea < 8|| contourArea > 30000) {
+      if (contourArea < 8 || contourArea > 30000) {
         // log.info("过滤面积:{}", contourArea);
         log.info("过滤面积:{}", i);
         continue;
@@ -362,8 +296,7 @@ public class RecognitionShapeUtils {
       int x = boundingRect.x;
       int y = boundingRect.y;
       int borderWitdh = 5;
-      if (x < borderWitdh || y < borderWitdh || (x >= width - borderWitdh && x <= width)
-          || (y >= height - borderWitdh && y <= height)) {
+      if (x < borderWitdh || y < borderWitdh || (x >= width - borderWitdh && x <= width) || (y >= height - borderWitdh && y <= height)) {
         log.info("过滤边框:{}", i);
         continue;
       }
@@ -373,13 +306,17 @@ public class RecognitionShapeUtils {
     log.info("颜色:{},过滤后的轮廓数量:{}", color, size);
     // 在原图上画出轮廓并保存
 
-//    Mat maskControus = mask.clone();
+    // Mat maskControus = mask.clone();
     // 因为是灰度图像,画布不出来图像,所以也无须保存
-//    Imgproc.drawContours(maskControus, realContours, 0, new Scalar(0, 0, 255));
-//    String realContoursName = MatUtils.getBaseName(morphologyName, "realContours");
-//    String realContoursDstPath = MatUtils.getDstPath(tempPath, realContoursName, extensionName);
-//    log.info("save file name:{}", realContoursName);
-//    MatUtils.debugToFile(isSave, maskControus, realContoursName, extensionName, realContoursDstPath, isUpload, uploadHost);
+    // Imgproc.drawContours(maskControus, realContours, 0, new Scalar(0, 0,
+    // 255));
+    // String realContoursName = MatUtils.getBaseName(morphologyName,
+    // "realContours");
+    // String realContoursDstPath = MatUtils.getDstPath(tempPath,
+    // realContoursName, extensionName);
+    // log.info("save file name:{}", realContoursName);
+    // MatUtils.debugToFile(isSave, maskControus, realContoursName,
+    // extensionName, realContoursDstPath, isUpload, uploadHost);
 
     for (int i = 0; i < size; i++) {
       MatOfPoint contour = realContours.get(i);
@@ -392,8 +329,7 @@ public class RecognitionShapeUtils {
       String boundingRectName = MatUtils.getBaseName(morphologyName, "boundingRect_" + i);
       String boundingRectNameDstPath = MatUtils.getDstPath(tempPath, boundingRectName, extensionName);
       log.info("save file name:{}", boundingRectNameDstPath);
-      MatUtils.debugToFile(isSave, boundingRectMat, boundingRectName, extensionName, boundingRectNameDstPath, isUpload,
-          uploadHost);
+      MatUtils.debugToFile(isSave, boundingRectMat, boundingRectName, extensionName, boundingRectNameDstPath, isUpload, uploadHost);
       int count = Core.countNonZero(boundingRectMat);
       int total = boundingRectMat.rows() * boundingRectMat.cols();
 
@@ -401,16 +337,16 @@ public class RecognitionShapeUtils {
       double persent = new BigDecimal((float) count / total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
       log.info("color:{},count:{},占比:{}", color, count, persent);
       if (persent < 0.3) {
-//      白色区域太小,过滤掉
+        // 白色区域太小,过滤掉
         log.info("color:{},位置:{},count:{},有效区域太小,跳过图形检测", color, i, count);
         continue;
       }
 
-//      if (count < 110) { // 该值 //380
-//        // 白色区域太小,过滤掉
-//        log.info("color:{},位置:{},count:{},有效区域太小,跳过图形检测", color, i, count);
-//        return retval;
-//      }
+      // if (count < 110) { // 该值 //380
+      // // 白色区域太小,过滤掉
+      // log.info("color:{},位置:{},count:{},有效区域太小,跳过图形检测", color, i, count);
+      // return retval;
+      // }
       // 将轮廓写入文件
       Mat contourMat = Mat.zeros(morphology.size(), CvType.CV_8UC3);
       Imgproc.drawContours(contourMat, Arrays.asList(contour), 0, new Scalar(0, 0, 255));
@@ -431,8 +367,7 @@ public class RecognitionShapeUtils {
       String approxCurveDstPath = MatUtils.getDstPath(tempPath, approxCurveName, extensionName);
       // 保存近似多边形曲线之后的图像
       log.info("save file name:{}", approxCurveName);
-      MatUtils.debugToFile(isSave, approxCurveMat, approxCurveName, extensionName, approxCurveDstPath, isUpload,
-          uploadHost);
+      MatUtils.debugToFile(isSave, approxCurveMat, approxCurveName, extensionName, approxCurveDstPath, isUpload, uploadHost);
 
       List<MatOfPoint> contoursExternal = ShapeUtils.findExternalContours(approxCurveMat, debugInfo);
 
@@ -465,7 +400,7 @@ public class RecognitionShapeUtils {
     double arcLength = Imgproc.arcLength(matOfPoint2f, true);
     // 设置弧长
     shape.setArcLength(arcLength);
-//    log.info("arcLength:{}", arcLength);
+    // log.info("arcLength:{}", arcLength);
     // 以指定的精确到近似多边形曲线
     MatOfPoint2f approxCurve = new MatOfPoint2f();
     // 进行第一次拟合
@@ -490,7 +425,7 @@ public class RecognitionShapeUtils {
     // 五角星 1*10
     double height = size.height;
     if (height == 3d) {
-//      log.info("三角形");
+      // log.info("三角形");
       shape.setShape(ShapeShape.三角形);
       double[] a = approxCurve.get(0, 0);
       double[] b = approxCurve.get(1, 0);
@@ -507,27 +442,27 @@ public class RecognitionShapeUtils {
       double angle_max = Math.max(angle_a, Math.max(angle_b, angle_c));
 
       double cos = Math.cos(Math.toRadians(angle_max));
-//      log.info("cos:{}", cos);
+      // log.info("cos:{}", cos);
       if (cos > 0.05) {
-//        log.info("锐角三角形");
+        // log.info("锐角三角形");
         shape.setType(ShapeType.锐角三角形);
       } else if (cos < -0.05) {
-//        log.info("钝角三角形");
+        // log.info("钝角三角形");
         shape.setType(ShapeType.钝角三角形);
       } else {
-//        log.info("直角三角形");
+        // log.info("直角三角形");
         shape.setType(ShapeType.直角三角形);
       }
 
     } else if (height == 4d) {
-//      log.info("四边形");
+      // log.info("四边形");
       shape.setShape(ShapeShape.四边形);
       // 四个顶点
       double[] a = approxCurve.get(0, 0);
       double[] b = approxCurve.get(1, 0);
       double[] c = approxCurve.get(2, 0);
       double[] d = approxCurve.get(3, 0);
-//      log.info("a:{},b:{},c:{},d:{}", a, b, c, d);
+      // log.info("a:{},b:{},c:{},d:{}", a, b, c, d);
       // 四个顶点对应的角度 （单位：度）
       double angle_a = MathUtils.calculating_angle(b, d, a);
       double angle_b = MathUtils.calculating_angle(a, c, b);
@@ -543,19 +478,19 @@ public class RecognitionShapeUtils {
       double radians = Math.toRadians(angle_max);
       double cos = Math.cos(radians);
       double abs = Math.abs(ab - bc);
-//      log.info("cos:{}", cos);
+      // log.info("cos:{}", cos);
       if ((cos > 0.07 || cos < -0.07) && abs < 5) {
-//        log.info("菱形");
+        // log.info("菱形");
         shape.setType(ShapeType.菱形);
       } else if (abs < 5) {
-//        log.info("正方形");
+        // log.info("正方形");
         shape.setType(ShapeType.正方形);
       } else {
-//        log.info("长方形");
+        // log.info("长方形");
         shape.setType(ShapeType.长方形);
       }
     } else if (height == 10d || height == 9d) { // 9变形也检测为五角星
-//      log.info("五角星");
+      // log.info("五角星");
       // 面积大于弧长
       if (contourArea > arcLength) {
         shape.setShape(ShapeShape.五角星);
@@ -572,19 +507,17 @@ public class RecognitionShapeUtils {
       double pi = contourArea / (Math.pow(r, 2));
       if (Math.abs(pi - Math.PI) < 1.) {
         // 满足圆的条件
-//        log.info("圆形");
+        // log.info("圆形");
         shape.setShape(ShapeShape.圆形);
         shape.setType(ShapeType.圆形);
       } else {
         // # n边形
         shape.setShape(ShapeShape.N变形);
-//        log.info("shape:{} 边形 ,面积:{}", height, contourArea);
+        // log.info("shape:{} 边形 ,面积:{}", height, contourArea);
       }
     }
     return shape;
   }
-
-
 
   public static String[] formatToArray(List<Shape> shapList) {
     // 进行格式化处理,方便android端显示
@@ -595,8 +528,7 @@ public class RecognitionShapeUtils {
 
     for (int i = 0; i < size; i++) {
       Shape shape = shapList.get(i);
-      array[i] = String.format(templateString, shape.getShape(), shape.getType(), shape.getColor(), shape.getArea(),
-          shape.getArcLength());
+      array[i] = String.format(templateString, shape.getShape(), shape.getType(), shape.getColor(), shape.getArea(), shape.getArcLength());
     }
     return array;
   }
