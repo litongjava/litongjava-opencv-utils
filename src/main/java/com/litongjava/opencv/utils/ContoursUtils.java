@@ -11,13 +11,10 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author Ping E Lee
  *
  */
-@Slf4j
 public class ContoursUtils {
 
   public static Mat extraCircleArea(Mat src, List<MatOfPoint> contours) {

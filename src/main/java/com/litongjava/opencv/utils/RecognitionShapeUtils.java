@@ -21,7 +21,6 @@ import org.opencv.imgproc.Imgproc;
 
 import com.litongjava.opencv.constatns.HsvConstants;
 import com.litongjava.opencv.model.DebugInfo;
-import com.litongjava.opencv.model.MaxAreaBo;
 import com.litongjava.opencv.model.Shape;
 import com.litongjava.opencv.model.ShapeShape;
 import com.litongjava.opencv.model.ShapeType;
@@ -30,9 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 识别形状
- * 
- * @author Ping
- *
  */
 @Slf4j
 public class RecognitionShapeUtils {
@@ -71,8 +67,7 @@ public class RecognitionShapeUtils {
     // 读取文件
     Mat src = MatUtils.imread(imageBytes);
 
-    // 获取识别区域
-
+    // 获取识别区域,1)裁剪出图像区域
     Mat lastRectMax = RecognitionUtils.extraRecogArea(src, debugInfo);
 
     // 将背景色设置为白色
@@ -264,7 +259,7 @@ public class RecognitionShapeUtils {
     log.info("save file name:{}", morphologyName);
     MatUtils.debugToFile(isSave, morphology, morphologyName, extensionName, morphologyDstPath, isUpload, uploadHost);
 
-    // 查找二进制图像的轮廓
+    // 查找二值化图像的轮廓
     Mat hierarchy = new Mat();
     List<MatOfPoint> contours = new ArrayList<>();
     // Imgproc.findContours(morphology, contours, hierarchy, Imgproc.RETR_TREE,

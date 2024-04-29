@@ -1,7 +1,5 @@
 package com.litongjava.opencv.utils;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -32,9 +30,6 @@ public class RecognitionPlateUtilsTest {
     
     byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
     Mat src = MatUtils.imread(imageBytes);
-    
-    RecognitionPlateUtils.pre(src, debugInfo);
-    
+    RecognitionPlateUtils.pre(src, debugInfo); 
   }
-
 }

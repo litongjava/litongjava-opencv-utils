@@ -37,7 +37,6 @@ public class TrafficLightUtils {
    * @throws IOException 
    */
   private static TrafficLight v3(byte[] imageBytes, DebugInfo debugInfo) throws IOException {
-
     // 读取文件
     Mat src = MatUtils.imread(imageBytes);
 

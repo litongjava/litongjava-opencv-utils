@@ -145,19 +145,18 @@ public class MatUtils {
     }
   }
 
-  public static String upload( byte[] imageByte,String extensionName, String uploadHost) {
+  public static String upload(byte[] imageByte, String extensionName, String uploadHost) {
     String requestURL = "http://" + uploadHost + "/upload/folder";
     long currentTimeMillis = System.currentTimeMillis();
-    log.info("upload filename:{}",currentTimeMillis);
+    log.info("upload filename:{}", currentTimeMillis);
     return FileUploadUtils.upload(imageByte, requestURL, "file", currentTimeMillis + "." + extensionName);
   }
 
-public static int bSums(Mat src)
-{
-  //Imgproc.ite
-  //HighGui.it
-  
-  int counter = 0;
+  public static int bSums(Mat src) {
+    // Imgproc.ite
+    // HighGui.it
+
+    int counter = 0;
 //  //迭代器访问像素点
 //  Mat_<uchar>::iterator it = src.begin<uchar>();
 //  Mat_<uchar>::iterator itend = src.end<uchar>();  
@@ -165,7 +164,7 @@ public static int bSums(Mat src)
 //  {
 //    if((*it)>0) counter+=1;//二值化后，像素点是0或者255
 //  }     
-  return counter;
-}
+    return counter;
+  }
 
 }

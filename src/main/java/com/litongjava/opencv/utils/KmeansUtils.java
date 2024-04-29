@@ -12,9 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 使用 kmeas聚类获取背景色并将背景色设置为白色
- * 
- * @author
- *
  */
 @Slf4j
 public class KmeansUtils {
@@ -22,8 +19,10 @@ public class KmeansUtils {
   public static Mat backgrand2White(Mat src) {
     // 将二维图像数据线性化
     Mat data = new Mat();
-    for (int i = 0; i < src.rows(); i++) {// 像素点线性排列
-      for (int j = 0; j < src.cols(); j++) {
+    int srcRows = src.rows();
+    int srcCols = src.cols();
+    for (int i = 0; i < srcRows; i++) {// 像素点线性排列
+      for (int j = 0; j < srcCols; j++) {
         // Vec3b point = src.at<Vec3b>(i, j);
         // 包含是三个点的数据[99.0, 97.0, 97.0]
         double[] ds = src.get(i, j);
@@ -48,25 +47,29 @@ public class KmeansUtils {
     int cols = labels.cols(); // ==>1
     log.info("rows:{},cols:{}", rows, cols);
     // 遍历数据
-//    for (int i = 0; i < rows; i++) {
-//      for (int j = 0; j < cols; j++) {
-//        double[] ds = labels.get(i, j);
-//        System.out.println(Arrays.toString(ds));==>[1.0]
-//      }
-//    }
+    // for (int i = 0; i < rows; i++) {
+    // for (int j = 0; j < cols; j++) {
+    // double[] ds = labels.get(i, j);
+    // System.out.println(Arrays.toString(ds));==>[1.0]
+    // }
+    // }
 
     // 背景与图像二值化
     Mat mask = Mat.zeros(src.size(), CvType.CV_8UC1);
-    int index = src.rows() * 5 + 5; // 获取点（5，5）作为背景色
-//    int cindex = labels.at<int>(index);
+    // int index = srcRows * 5 + 5; // 获取点（5，5）作为背景色
+    // (srcRows / 4),srcCols / 4)
+    // int index = srcRows * (srcRows / 4) + srcCols / 4;
+    // (y,x) y=rows/2,x=rols/8
+    int index = srcRows * (srcRows / 2) + srcCols / 8;
+    // int cindex = labels.at<int>(index);
     double[] cindex = labels.get(index, 0);
-//    log.info("ds:{}",ds);
+    // log.info("ds:{}",ds);
     /*
      * 提取背景特征
      */
-    for (int row = 0; row < src.rows(); row++) {
-      for (int col = 0; col < src.cols(); col++) {
-        index = row * src.cols() + col;
+    for (int row = 0; row < srcRows; row++) {
+      for (int col = 0; col < srcCols; col++) {
+        index = row * srcCols + col;
         // int label = labels.at<int>(index);
         double[] label = labels.get(index, 0);
         if (label[0] == cindex[0]) { // 背景
@@ -83,21 +86,21 @@ public class KmeansUtils {
     Imgproc.GaussianBlur(mask, mask, new Size(3, 3), 0, 0);
 
     // 更换背景色以及交汇处融合处理
-//    RNG rng(12345);
-//    Vec3b color;  //设置的背景色
+    // RNG rng(12345);
+    // Vec3b color; //设置的背景色
     double[] color = { 255, 255, 255 };
-//    color[0] = 255;// rng.uniform(0, 255);
-//    color[1] = 255;// rng.uniform(0, 255);
-//    color[2] = 255;// rng.uniform(0, 255);
+    // color[0] = 255;// rng.uniform(0, 255);
+    // color[1] = 255;// rng.uniform(0, 255);
+    // color[2] = 255;// rng.uniform(0, 255);
     Mat result = new Mat(src.size(), src.type());
 
     double w = 0.0; // 融合权重
     double b = 0, g = 0, r = 0;
     double b1 = 0, g1 = 0, r1 = 0;
     double b2 = 0, g2 = 0, r2 = 0;
-//
-    for (int row = 0; row < src.rows(); row++) {
-      for (int col = 0; col < src.cols(); col++) {
+    //
+    for (int row = 0; row < srcRows; row++) {
+      for (int col = 0; col < srcCols; col++) {
         // int m = mask.at<uchar>(row, col);
         double[] m = mask.get(row, col);
         if (m[0] == 255) {
@@ -108,9 +111,9 @@ public class KmeansUtils {
           result.put(row, col, color);
         } else {/* 融合处理部分 */
           w = m[0] / 255.0;
-//          b1 = src.at<Vec3b>(row, col)[0];
-//          g1 = src.at<Vec3b>(row, col)[1];
-//          r1 = src.at<Vec3b>(row, col)[2];
+          // b1 = src.at<Vec3b>(row, col)[0];
+          // g1 = src.at<Vec3b>(row, col)[1];
+          // r1 = src.at<Vec3b>(row, col)[2];
           b1 = src.get(row, col)[0];
 
           b2 = color[0];
@@ -121,10 +124,10 @@ public class KmeansUtils {
           g = g1 * w + g2 * (1.0 - w);
           r = r1 * w + r2 * (1.0 - w);
 
-//          result.at<Vec3b>(row, col)[0] = b;
-//          result.at<Vec3b>(row, col)[1] = g;
-//          result.at<Vec3b>(row, col)[2] = r;
-//           result.at<Vec3b>(row, col)[0]
+          // result.at<Vec3b>(row, col)[0] = b;
+          // result.at<Vec3b>(row, col)[1] = g;
+          // result.at<Vec3b>(row, col)[2] = r;
+          // result.at<Vec3b>(row, col)[0]
           result.put(row, col, b, g, r);
         }
       }

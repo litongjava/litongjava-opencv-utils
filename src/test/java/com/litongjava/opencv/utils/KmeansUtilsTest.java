@@ -12,10 +12,14 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
 
+import com.litongjava.opencv.model.DebugInfo;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class KmeansUtilsTest {
+
+  String tempPath = "D:\\opencv-images\\shape\\temp";
 
   @Before
   public void before() {
@@ -23,16 +27,48 @@ public class KmeansUtilsTest {
   }
 
   @Test
+  public void testBackgrand2White() throws FileNotFoundException, IOException {
+    List<String> imagePathList = new ArrayList<>();
+    // imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-001-maxArea-maxArea.png");
+//    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-002-maxArea.jpg");
+//    imagePathList.add("D:\\opencv-images\\plate\\plate-001-maxArea-maxArea.png");
+    imagePathList.add("D:\\opencv-images\\plate\\plate-001-maxArea.jpg");
+
+    for (String imagePath : imagePathList) {
+
+      DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
+
+      Boolean isSave = debugInfo.getIsSave();
+      String baseName = debugInfo.getBaseName();
+      String extensionName = debugInfo.getExtensionName();
+      String tempPath = debugInfo.getTempPath();
+
+      Boolean isUpload = debugInfo.getIsUpload();
+      String uploadHost = debugInfo.getUploadHost();
+
+      Mat src = MatUtils.imread(imagePath);
+      // 图片背景转为白色
+      Mat backgrand2White = KmeansUtils.backgrand2White(src);
+      // 保存到文件
+      String whiteName = MatUtils.getBaseName(baseName, "white");
+      String whiteDstPath = MatUtils.getDstPath(tempPath, whiteName, extensionName);
+      log.info("save file name:{}", whiteDstPath);
+      MatUtils.debugToFile(isSave, backgrand2White, whiteName, extensionName, whiteDstPath, isUpload, uploadHost);
+    }
+  }
+
+  @Test
   public void testGetBackgroundColor() throws FileNotFoundException, IOException {
     List<String> imagePathList = new ArrayList<>();
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-001-maxArea-maxArea.png"); //0.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-002-maxArea.png"); //0.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-003-maxArea.jpg"); //1.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-004-maxArea.jpg"); //0.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-005-maxArea-maxArea.jpg");//0.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-006-maxArea-maxArea.jpg");//0.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-007-maxArea-maxArea.jpg");//1.0
-    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-008-maxArea-maxArea.jpg");//0.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-001-maxArea-maxArea.png"); // 0.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-002-maxArea.png");// 0.0
+
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-003-maxArea.jpg");// 1.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-004-maxArea.jpg");// 0.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-005-maxArea-maxArea.jpg");// 0.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-006-maxArea-maxArea.jpg");// 0.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-007-maxArea-maxArea.jpg");// 1.0
+    imagePathList.add("D:\\opencv-images\\shape\\temp\\shape-008-maxArea-maxArea.jpg");// 0.0
 
     for (String imagePath : imagePathList) {
       Mat src = MatUtils.imread(imagePath);
@@ -64,12 +100,12 @@ public class KmeansUtilsTest {
       int cols = labels.cols(); // ==>1
       log.info("rows:{},cols:{}", rows, cols);
       // 遍历数据
-//        for (int i = 0; i < rows; i++) {
-//          for (int j = 0; j < cols; j++) {
-//            double[] ds = labels.get(i, j);
-//            System.out.println(Arrays.toString(ds));==>[1.0]
-//          }
-//        }
+      // for (int i = 0; i < rows; i++) {
+      // for (int j = 0; j < cols; j++) {
+      // double[] ds = labels.get(i, j);
+      // System.out.println(Arrays.toString(ds));==>[1.0]
+      // }
+      // }
 
       // 背景与图像二值化
       // Mat mask = Mat.zeros(src.size(), CvType.CV_8UC1);
@@ -80,3 +116,4 @@ public class KmeansUtilsTest {
   }
 
 }
+

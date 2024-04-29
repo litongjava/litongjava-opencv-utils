@@ -1,6 +1,5 @@
 package com.litongjava.opencv.utils;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.opencv.core.CvType;
