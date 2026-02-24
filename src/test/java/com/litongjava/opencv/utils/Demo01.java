@@ -6,10 +6,13 @@ import java.io.IOException;
 import org.opencv.core.Mat;
 import org.opencv.highgui.HighGui;
 
+import nu.pattern.OpenCV;
+
 public class Demo01 {
   public static void main(String[] args) throws FileNotFoundException, IOException {
     // 加载 native
-    OpenCVLibraryUtils.init();
+    //OpenCVLibraryUtils.init();
+    OpenCV.loadLocally();
 
     Mat src = MatUtils.imread("F:\\opencv-images\\person\\flower.png");
     if (src == null || src.empty()) {
