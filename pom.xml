@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.litongjava</groupId>
   <artifactId>java-opencv-utils</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
 
   <name>litongjava-opencv-utils</name>
