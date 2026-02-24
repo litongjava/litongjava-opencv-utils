@@ -1,6 +1,6 @@
 package com.litongjava.opencv.model;
 
-import org.apache.commons.io.FilenameUtils;
+import com.litongjava.opencv.utils.FilenameUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

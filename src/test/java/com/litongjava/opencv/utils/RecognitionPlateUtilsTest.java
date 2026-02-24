@@ -1,14 +1,16 @@
 package com.litongjava.opencv.utils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencv.core.Mat;
 
 import com.litongjava.opencv.model.DebugInfo;
+
+import nu.pattern.OpenCV;
 
 /**
  * @author Ping E Lee
@@ -20,15 +22,15 @@ public class RecognitionPlateUtilsTest {
   
   @Before
   public void before() {
-    OpenCVLibraryUtils.init();
+    OpenCV.loadLocally();
   }
   
   @Test
   public void test() throws IOException {
-    String imagePath="D:\\opencv-images\\plate\\plate-001.png";
+    String imagePath="F:\\opencv-images\\plate\\plate-001.png";
     DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
     
-    byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
+    byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
     Mat src = MatUtils.imread(imageBytes);
     RecognitionPlateUtils.pre(src, debugInfo); 
   }

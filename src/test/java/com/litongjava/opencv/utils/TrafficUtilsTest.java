@@ -1,13 +1,13 @@
 package com.litongjava.opencv.utils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class TrafficUtilsTest {
     for (String imagePath : imagePathList) {
       DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
 
-      byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
+      byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
       TrafficLight trafficLight = TrafficLightUtils.index(imageBytes, debugInfo);
       result.put(imagePath, trafficLight);
     }

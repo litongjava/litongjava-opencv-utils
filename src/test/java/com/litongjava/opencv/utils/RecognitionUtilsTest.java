@@ -1,23 +1,17 @@
 package com.litongjava.opencv.utils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Size;
 import org.opencv.highgui.HighGui;
-import org.opencv.imgproc.Imgproc;
 
 import com.litongjava.opencv.model.DebugInfo;
-import com.litongjava.opencv.model.TrafficLight;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +37,7 @@ public class RecognitionUtilsTest {
     for (String imagePath : imagePathList) {
       DebugInfo debugInfo = new DebugInfo(imagePath, true, tempPath);
 
-      byte[] imageBytes = FileUtils.readFileToByteArray(new File(imagePath));
+      byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
       Mat src = MatUtils.imread(imageBytes);
       Mat extraRecogArea = RecognitionUtils.extraRecogArea(src, debugInfo);
       HighGui.imshow("extraRecogArea", extraRecogArea);
